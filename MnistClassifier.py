@@ -42,8 +42,22 @@ def load_mnist_data():
     
     return (X_train, y_train), (X_val, y_val), (X_test, y_test)
 
+def preprocess_data(X):
+    # normalization
+    X = X.astype('float32') / 255.0
+
+    # converting 2d images to 1d arrays
+    if len(X.shape) > 2:
+        X = X.reshape(X.shape[0], -1)
+
+    return X
+
 def main():
     (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_mnist_data()
+
+    X_train = preprocess_data(X_train)
+    X_val = preprocess_data(X_val)
+    X_test = preprocess_data(X_test)
 
     print("\nInitializing MnistClassifier with 'nn' algorithm")
     classifier = MnistClassifier(algorithm='nn')

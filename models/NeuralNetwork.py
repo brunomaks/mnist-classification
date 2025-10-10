@@ -20,7 +20,7 @@ class NeuralNetwork(MnistClassifierInterface):
     def _build_model(self):
         # Architecture:
         # - Input layer: 784 neurons (flattened 28x28 MNIST images)
-        # - Hidden layer: Dense layer with configurable neurons and activation (by default - 64)
+        # - Hidden layer: Dense layer with configurable neurons and activation (by default - 64 neurons)
         # - Dropout: Regularization layer to prevent overfitting
         # - Output layer: 10 neurons with softmax activation for classification
         self.model = keras.Sequential() # simplest model type
@@ -38,20 +38,7 @@ class NeuralNetwork(MnistClassifierInterface):
         )
         self.model.summary() # to see current model architecture
 
-    def preprocess_data(self, X):
-        # normalization
-        X = X.astype('float32') / 255.0
-
-        # converting 2d images to 1d arrays
-        if len(X.shape) > 2:
-            X = X.reshape(X.shape[0], -1)
-
-        return X
-    
     def train(self, X_train, y_train, X_val, y_val):
-        X_train = self.preprocess_data(X_train) # training data
-        X_val = self.preprocess_data(X_val)     # validation data
-
         self.history = self.model.fit(
             X_train, y_train,
             batch_size=self.batch_size,     # number of samples per gradient update
@@ -64,8 +51,6 @@ class NeuralNetwork(MnistClassifierInterface):
         return self.history
     
     def predict(self, X):
-        X = self.preprocess_data(X)
-
         probabilities = self.model.predict(X, verbose=0) # supress output
 
         # pick the highest probability out of all (0-9)
@@ -74,8 +59,6 @@ class NeuralNetwork(MnistClassifierInterface):
         return predictions
     
     def evaluate(self, X_test, y_test):
-        X_test = self.preprocess_data(X_test)
-
         # evaluates model on test data, check how it performs on unseen data
         test_loss, test_accuracy = self.model.evaluate(X_test, y_test, verbose=0)
         
