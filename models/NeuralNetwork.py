@@ -5,8 +5,8 @@ import keras
 from interface import MnistClassifierInterface
 
 class NeuralNetwork(MnistClassifierInterface):
-    def __init__(self, hidden_layers=[128, 64], activation='relu', learning_rate=0.001, batch_size=32, epochs=15):
-        self.hidden_layers = hidden_layers
+    def __init__(self, hidden_layer=64, activation='relu', learning_rate=0.001, batch_size=64, epochs=15):
+        self.hidden_layer = hidden_layer
         self.activation = activation
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -20,8 +20,8 @@ class NeuralNetwork(MnistClassifierInterface):
         self.model = keras.Sequential() # simplest model type
 
         self.model.add(keras.layers.Input(shape=(784,))) # set input layer to take 784 inputs (because of 28x28 mnist image)
-        self.model.add(keras.layers.Dense(units=self.hidden_layers[0], activation=self.activation))
-        self.model.add(keras.layers.Dense(units=self.hidden_layers[1], activation=self.activation))
+        self.model.add(keras.layers.Dense(units=self.hidden_layer, activation=self.activation))
+        self.model.add(keras.layers.Dropout(0.3)) # drop 30% of the neurons, helps prevent overfitting
         self.model.add(keras.layers.Dense(units=10, activation='softmax')) # to convert output to probabilites
 
         # specify how the model should learn
