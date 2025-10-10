@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from models.NeuralNetwork import NeuralNetwork
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -35,9 +36,9 @@ def load_mnist_data():
     X_train, X_val, y_train, y_val = train_test_split(
         X_train, y_train, test_size=10000, random_state=42, stratify=y_train
     )
-    # X_train: (50,000, 784)
-    # X_val:   (10,000, 784)
-    # X_test:  (10,000, 784)
+    # X_train: (50 000, 784)
+    # X_val:   (10 000, 784)
+    # X_test:  (10 000, 784)
     
     return (X_train, y_train), (X_val, y_val), (X_test, y_test)
 
@@ -58,6 +59,16 @@ def main():
     predictions = classifier.predict(X_test[:5])
     print(f"Predictions: {predictions}")
     print(f"Actual labels: {y_test[:5]}")
+
+    # Plotting Training & Validation loss to check if the model is overfitting
+    plt.figure(figsize=(6,4))
+    plt.plot(history.history['loss'], label='Training loss')
+    plt.plot(history.history['val_loss'], label='Validation loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training vs validation loss')
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
     main()
