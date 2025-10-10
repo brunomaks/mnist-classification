@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
-from models.NeuralNetwork import NeuralNetwork
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
+
+from models.NeuralNetwork import NeuralNetwork
+from models.RandomForest import RandomForest
 
 class MnistClassifier:
     def __init__(self, algorithm='nn'):
@@ -10,6 +12,8 @@ class MnistClassifier:
 
         if self.algorithm == 'nn':
             self.model = NeuralNetwork()
+        elif self.algorithm == 'rf':  
+            self.model = RandomForest()
         else:
             raise ValueError(f"Uknown algorithm: {algorithm}. Choose from 'nn', 'cnn' or 'rf'")
         
@@ -59,30 +63,52 @@ def main():
     X_val = preprocess_data(X_val)
     X_test = preprocess_data(X_test)
 
-    print("\nInitializing MnistClassifier with 'nn' algorithm")
-    classifier = MnistClassifier(algorithm='nn')
+    # ===Testing Random Forest===
+    print("\nInitializing MnistClassifier with 'rf' algorithm")
+    classifier_rf = MnistClassifier(algorithm='rf')
 
-    print("\nTraining the model (preprocessing included)...")
-    history = classifier.train(X_train, y_train, X_val, y_val)
+    print("\nTraining the model...")
+    history_rf = classifier_rf.train(X_train, y_train, X_val, y_val)
 
     print("\nEvaluating on test set...")
-    test_accuracy = classifier.evaluate(X_test, y_test)
-    print(f"\nFinal test accuracy: {test_accuracy:.4f} ({test_accuracy*100:.2f}%)")
+    test_metrics_rf = classifier_rf.evaluate(X_test, y_test)
+    print(f"\nFinal test accuracy: {test_metrics_rf['test_accuracy']:.4f} ({test_metrics_rf['test_accuracy']*100:.2f}%)")
+    print(f"Average confidence: {test_metrics_rf['test_average_confidence']:.4f}")
+    print(f"Max confidence: {test_metrics_rf['test_max_confidence']:.4f}")
+    print(f"Low confidence samples: {test_metrics_rf['test_low_confidence_count']}")
 
-    print("\nMaking predictions on first 5 test samples...")
-    predictions = classifier.predict(X_test[:5])
-    print(f"Predictions: {predictions}")
-    print(f"Actual labels: {y_test[:5]}")
+    print(f"Training accuracy: {history_rf['train_accuracy']:.4f}")
+    print(f"Validation accuracy: {history_rf['val_accuracy']:.4f}")
+    print(f"Accuracy gap: {history_rf['accuracy_gap']:.4f}")
 
-    # Plotting Training & Validation loss to check if the model is overfitting
+    # ===Testing Neural Network===
+    print("\nInitializing MnistClassifier with 'nn' algorithm")
+    classifier_nn = MnistClassifier(algorithm='nn')
+
+    print("\nTraining the model...")
+    history_nn = classifier_nn.train(X_train, y_train, X_val, y_val)
+
+    print("\nEvaluating on test set...")
+    test_accuracy_nn = classifier_nn.evaluate(X_test, y_test)
+    print(f"\nFinal test accuracy: {test_accuracy_nn:.4f} ({test_accuracy_nn*100:.2f}%)")
+
+    # Plotting training & validation loss to check if the model is overfitting
     plt.figure(figsize=(6,4))
-    plt.plot(history.history['loss'], label='Training loss')
-    plt.plot(history.history['val_loss'], label='Validation loss')
+    plt.plot(history_nn.history['loss'], label='Training loss')
+    plt.plot(history_nn.history['val_loss'], label='Validation loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Training vs validation loss')
     plt.legend()
     plt.show()
+
+    # Comparing predictions between all the models
+    print("\nMaking predictions on first 5 test samples...")
+    predictions_rf = classifier_rf.predict(X_test[:5])
+    print(f"RF Predictions: {predictions_rf}")
+    predictions_nn = classifier_nn.predict(X_test[:5])
+    print(f"NN Predictions: {predictions_nn}")
+    print(f"Actual labels: {y_test[:5]}")
 
 if __name__ == "__main__":
     main()
